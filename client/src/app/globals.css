@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0e0e0e;
+  --color-bg-light: #141414;
+  --color-bg-card: #181818;
+  --color-bg-elevated: #222222;
+  --color-accent: #b6a0ff;
+  --color-accent-hover: #9d84ff;
+  --color-neon-green: #00ff88;
+  --color-neon-blue: #00d4ff;
+  --color-text: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #666666;
+  --color-border: #2a2a2a;
+  --color-border-light: #333333;
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { @apply bg-bg text-text font-sans antialiased; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-bg-light; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::selection { @apply bg-accent/30; }
+}
+
+@layer components {
+  .glass { @apply bg-bg-light/70 backdrop-blur-xl border border-border/50; }
+  .glass-card { @apply bg-bg-card/80 backdrop-blur-lg border border-border/30 rounded-xl; }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-bg font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-accent/25 active:scale-[0.98]; }
+  .btn-secondary { @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-bg-elevated hover:bg-border text-text font-semibold rounded-lg transition-all border border-border active:scale-[0.98]; }
+  .btn-ghost { @apply inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-text hover:bg-bg-elevated rounded-lg transition-all; }
+  .input-field { @apply w-full px-4 py-3 bg-bg-elevated border border-border rounded-lg text-text placeholder:text-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all; }
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 bg-bg-elevated border border-border rounded-full text-xs font-medium text-text-secondary; }
+  .badge-accent { @apply inline-flex items-center px-2.5 py-0.5 bg-accent/20 border border-accent/30 rounded-full text-xs font-medium text-accent; }
+  .badge-live { @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-neon-green/20 border border-neon-green/30 rounded-full text-xs font-medium text-neon-green; }
+  .badge-live::before { content: ''; @apply w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse; }
+  .card-hover { @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/50; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-slide-up { animation: slide-up 0.4s ease-out; }
+.animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
