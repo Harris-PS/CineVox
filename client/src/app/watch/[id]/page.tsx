@@ -44,15 +44,24 @@ export default function WatchPartyPage({ params }: { params: Promise<{ id: strin
       socket.emit('chat:history', { roomId: id })
     })
     socket.on('room:state', (state: any) => {
-      if (state.currentTime) setExtSeek(state.currentTime)
+      if (state.currentTime !== undefined) {
+        setExtSeek(state.currentTime)
+        if (state.isPlaying) {
+          setExtPlay(true)
+          setTimeout(() => setExtPlay(false), 100)
+        } else {
+          setExtPause(true)
+          setTimeout(() => setExtPause(false), 100)
+        }
+      }
     })
     socket.on('playback:play', (state: any) => {
-      if (state.currentTime) setExtSeek(state.currentTime)
+      if (state.currentTime !== undefined) setExtSeek(state.currentTime)
       setExtPlay(true)
       setTimeout(() => setExtPlay(false), 100)
     })
     socket.on('playback:pause', (state: any) => {
-      if (state.currentTime) setExtSeek(state.currentTime)
+      if (state.currentTime !== undefined) setExtSeek(state.currentTime)
       setExtPause(true)
       setTimeout(() => setExtPause(false), 100)
     })
@@ -75,11 +84,11 @@ export default function WatchPartyPage({ params }: { params: Promise<{ id: strin
     setMessage('')
   }
 
-  const handlePlay = () => {
-    if (socketRef.current && room?.hostId?._id === user?.id) socketRef.current.emit('playback:play', { roomId: id, currentTime: 0 })
+  const handlePlay = (time: number) => {
+    if (socketRef.current && room?.hostId?._id === user?.id) socketRef.current.emit('playback:play', { roomId: id, currentTime: time })
   }
-  const handlePause = () => {
-    if (socketRef.current && room?.hostId?._id === user?.id) socketRef.current.emit('playback:pause', { roomId: id, currentTime: 0 })
+  const handlePause = (time: number) => {
+    if (socketRef.current && room?.hostId?._id === user?.id) socketRef.current.emit('playback:pause', { roomId: id, currentTime: time })
   }
   const handleSeek = (time: number) => {
     if (socketRef.current && room?.hostId?._id === user?.id) socketRef.current.emit('playback:seek', { roomId: id, currentTime: time })

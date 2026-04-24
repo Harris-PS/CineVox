@@ -62,7 +62,11 @@ io.on('connection', (socket) => {
       if (!room) return socket.emit('error', { message: 'Room not found' })
 
       await socket.join(roomId)
-      const state = roomStates.get(roomId) || { currentTime: room.currentTime, isPlaying: room.isPlaying, playbackRate: room.playbackRate }
+      let state = roomStates.get(roomId) || { currentTime: room.currentTime, isPlaying: room.isPlaying, playbackRate: room.playbackRate }
+      if (state.isPlaying && state.updatedAt) {
+        const timeElapsed = (Date.now() - state.updatedAt) / 1000 * (state.playbackRate || 1)
+        state = { ...state, currentTime: state.currentTime + timeElapsed }
+      }
       socket.emit('room:state', { ...state, room })
       socket.to(roomId).emit('room:user_joined', { userId: socket.user._id, displayName: socket.user.displayName, viewerCount: room.currentViewerCount + 1 })
     } catch (err) {
@@ -85,7 +89,7 @@ io.on('connection', (socket) => {
   socket.on('playback:play', async ({ roomId, currentTime }) => {
     const room = await Room.findById(roomId)
     if (!room || room.hostId.toString() !== socket.user._id.toString()) return
-    roomStates.set(roomId, { currentTime, isPlaying: true, playbackRate: room.playbackRate })
+    roomStates.set(roomId, { currentTime, isPlaying: true, playbackRate: room.playbackRate, updatedAt: Date.now() })
     await Room.findByIdAndUpdate(roomId, { currentTime, isPlaying: true })
     socket.to(roomId).emit('playback:play', { currentTime, isPlaying: true })
   })
@@ -93,7 +97,7 @@ io.on('connection', (socket) => {
   socket.on('playback:pause', async ({ roomId, currentTime }) => {
     const room = await Room.findById(roomId)
     if (!room || room.hostId.toString() !== socket.user._id.toString()) return
-    roomStates.set(roomId, { currentTime, isPlaying: false, playbackRate: room.playbackRate })
+    roomStates.set(roomId, { currentTime, isPlaying: false, playbackRate: room.playbackRate, updatedAt: Date.now() })
     await Room.findByIdAndUpdate(roomId, { currentTime, isPlaying: false })
     socket.to(roomId).emit('playback:pause', { currentTime, isPlaying: false })
   })
@@ -101,7 +105,7 @@ io.on('connection', (socket) => {
   socket.on('playback:seek', async ({ roomId, currentTime }) => {
     const room = await Room.findById(roomId)
     if (!room || room.hostId.toString() !== socket.user._id.toString()) return
-    const state = { currentTime, isPlaying: room.isPlaying, playbackRate: room.playbackRate }
+    const state = { currentTime, isPlaying: room.isPlaying, playbackRate: room.playbackRate, updatedAt: Date.now() }
     roomStates.set(roomId, state)
     await Room.findByIdAndUpdate(roomId, { currentTime })
     socket.to(roomId).emit('playback:seek', state)
