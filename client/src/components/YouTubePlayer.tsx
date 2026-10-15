@@ -11,8 +11,8 @@ declare global {
 interface YouTubePlayerProps {
   videoId: string
   isHost?: boolean
-  onPlay?: () => void
-  onPause?: () => void
+  onPlay?: (time: number) => void
+  onPause?: (time: number) => void
   onSeek?: (time: number) => void
   onTimeUpdate?: (time: number) => void
   onReady?: () => void
@@ -85,11 +85,11 @@ export default function YouTubePlayer({ videoId, isHost, onPlay, onPause, onSeek
             if (destroyed) return
             if (e.data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true)
-              if (!isExternalRef.current) onPlay?.()
+              if (!isExternalRef.current) onPlay?.(e.target.getCurrentTime())
               isExternalRef.current = false
             } else if (e.data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false)
-              if (!isExternalRef.current) onPause?.()
+              if (!isExternalRef.current) onPause?.(e.target.getCurrentTime())
               isExternalRef.current = false
             } else if (e.data === window.YT.PlayerState.ENDED) {
               setIsPlaying(false)
@@ -125,8 +125,8 @@ export default function YouTubePlayer({ videoId, isHost, onPlay, onPause, onSeek
 
   const togglePlay = () => {
     if (!playerRef.current || !playerReady) return
-    if (isPlaying) { playerRef.current.pauseVideo(); onPause?.() }
-    else { playerRef.current.playVideo(); onPlay?.() }
+    if (isPlaying) { playerRef.current.pauseVideo(); }
+    else { playerRef.current.playVideo(); }
   }
 
   const skip = (seconds: number) => {
